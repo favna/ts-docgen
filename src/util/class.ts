@@ -34,7 +34,7 @@ export function parseClass(element: DeclarationReflection): ClassDoc {
 
 	return {
 		name: element.name === 'default' ? path.parse(meta?.file ?? 'default').name : element.name,
-		description: element.comment?.shortText,
+		description: element.comment?.shortText?.trim(),
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		extends: extended ? [parseTypeSimple(extended)] : undefined,
 		implements: implemented ? [parseTypeSimple(implemented)] : undefined,
@@ -71,7 +71,7 @@ interface ClassPropDoc {
 function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 	const base: ClassPropDoc = {
 		name: element.name,
-		description: element.comment?.shortText,
+		description: element.comment?.shortText?.trim(),
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		scope: element.flags.isStatic ? 'static' : undefined,
 		access:
@@ -104,7 +104,7 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 
 		return {
 			...res,
-			description: getter.comment?.shortText,
+			description: getter.comment?.shortText?.trim(),
 			see: getter.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 			access:
 				getter.flags.isPrivate || getter.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
@@ -161,14 +161,14 @@ export function parseClassMethod(element: DeclarationReflection): ClassMethodDoc
 
 	return {
 		name: element.name,
-		description: signature.comment?.shortText,
+		description: signature.comment?.shortText?.trim(),
 		see: signature.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		scope: element.flags.isStatic ? 'static' : undefined,
 		access:
 			element.flags.isPrivate || signature.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 				? 'private'
 				: undefined,
-		examples: signature.comment?.tags?.filter((t) => t.tag === 'example').map((t) => t.text),
+		examples: signature.comment?.tags?.filter((t) => t.tag === 'example').map((t) => t.text.trim()),
 		abstract: signature.comment?.tags?.some((t) => t.tag === 'abstract'),
 		deprecated: signature.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		emits: signature.comment?.tags?.filter((t) => t.tag === 'emits').map((t) => t.text),
