@@ -35,15 +35,15 @@ export function parseClass(element: DeclarationReflection): ClassDoc {
 	return {
 		name: element.name === 'default' ? path.parse(meta?.file ?? 'default').name : element.name,
 		description: element.comment?.shortText?.trim(),
-		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		extends: extended ? [parseTypeSimple(extended)] : undefined,
 		implements: implemented ? [parseTypeSimple(implemented)] : undefined,
 		access:
 			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 				? 'private'
 				: undefined,
-		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract') ?? undefined,
-		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
+		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract'),
+		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		construct: construct ? parseClassMethod(construct) : undefined,
 		props: props && props.length > 0 ? props.map(parseClassProp) : undefined,
 		methods: methods && methods.length > 0 ? methods.map(parseClassMethod) : undefined,
@@ -72,7 +72,7 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 	const base: ClassPropDoc = {
 		name: element.name,
 		description: element.comment?.shortText?.trim(),
-		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		scope: element.flags.isStatic ? 'static' : undefined,
 		access:
 			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
@@ -82,7 +82,8 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract'),
 		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		default:
-			element.comment?.tags?.find((t) => t.tag === 'default')?.text ?? element.defaultValue === '...'
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			element.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? element.defaultValue === '...'
 				? undefined
 				: element.defaultValue,
 		// @ts-ignore
@@ -108,7 +109,7 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 		return {
 			...res,
 			description: getter.comment?.shortText?.trim(),
-			see: getter.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+			see: getter.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 			access:
 				getter.flags.isPrivate || getter.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 					? 'private'
@@ -118,7 +119,8 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 			deprecated: getter.comment?.tags?.some((t) => t.tag === 'deprecated'),
 			default:
 				res.default ??
-				getter.comment?.tags?.find((t) => t.tag === 'default')?.text ??
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				getter.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ??
 				// @ts-expect-error
 				getter.defaultValue,
 			type: getter.type ? parseType(getter.type) : undefined,
@@ -166,7 +168,7 @@ export function parseClassMethod(element: DeclarationReflection): ClassMethodDoc
 	return {
 		name: element.name,
 		description: signature.comment?.shortText?.trim(),
-		see: signature.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+		see: signature.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		scope: element.flags.isStatic ? 'static' : undefined,
 		access:
 			element.flags.isPrivate || signature.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
@@ -175,10 +177,10 @@ export function parseClassMethod(element: DeclarationReflection): ClassMethodDoc
 		examples: signature.comment?.tags?.filter((t) => t.tag === 'example').map((t) => t.text.trim()),
 		abstract: signature.comment?.tags?.some((t) => t.tag === 'abstract'),
 		deprecated: signature.comment?.tags?.some((t) => t.tag === 'deprecated'),
-		emits: signature.comment?.tags?.filter((t) => t.tag === 'emits').map((t) => t.text),
+		emits: signature.comment?.tags?.filter((t) => t.tag === 'emits').map((t) => t.text.trim()),
 		params: signature.parameters ? signature.parameters.map(parseParam) : undefined,
 		returns: signature.type ? parseType(signature.type) : undefined,
-		returnsDescription: signature.comment?.returns,
+		returnsDescription: signature.comment?.returns?.trim(),
 		meta: parseMeta(element),
 	};
 }
@@ -191,7 +193,8 @@ export function parseParam(param: DeclarationReflection): ClassMethodParamDoc {
 		description: param.comment?.shortText?.trim() ?? param.comment?.text?.trim(),
 		optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
 		default:
-			param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? param.defaultValue === '...'
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? param.defaultValue === '...'
 				? undefined
 				: param.defaultValue,
 		// @ts-ignore

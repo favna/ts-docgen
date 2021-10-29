@@ -20,7 +20,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 	const baseReturn: TypedefDoc = {
 		name: element.name,
 		description: element.comment?.shortText?.trim(),
-		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		access:
 			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 				? 'private'
@@ -56,9 +56,10 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 		if (children && children.length > 0) {
 			const props: ClassMethodParamDoc[] = children.map((child) => ({
 				name: child.name,
-				description: child.comment?.shortText?.trim() ?? (child.signatures ?? [])[0]?.comment?.shortText?.trim(),
+				description: child.comment?.shortText?.trim() ?? child.signatures?.[0]?.comment?.shortText?.trim(),
 				optional: child.flags.isOptional ?? typeof child.defaultValue != 'undefined',
-				default: child.comment?.tags?.find((t) => t.tag === 'default')?.text ?? child.defaultValue,
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				default: child.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? child.defaultValue,
 				type: child.type
 					? // @ts-ignore
 					  parseType(child.type)
@@ -84,7 +85,8 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				name: param.name,
 				description: param.comment?.shortText?.trim(),
 				optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
-				default: param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? param.defaultValue,
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				default: param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? param.defaultValue,
 				// @ts-ignore
 				type: param.type ? parseType(param.type) : undefined,
 			}));
@@ -92,7 +94,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 			return {
 				...baseReturn,
 				description: sig.comment?.shortText?.trim(),
-				see: sig.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+				see: sig.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 				access:
 					sig.flags.isPrivate || sig.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 						? 'private'
@@ -100,7 +102,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				deprecated: sig.comment?.tags?.some((t) => t.tag === 'deprecated'),
 				params,
 				returns: sig.type ? parseType(sig.type) : undefined,
-				returnsDescription: sig.comment?.returns,
+				returnsDescription: sig.comment?.returns?.trim(),
 			};
 		}
 	}
