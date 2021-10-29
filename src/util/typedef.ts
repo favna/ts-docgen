@@ -21,8 +21,11 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 		name: element.name,
 		description: element.comment?.shortText,
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
-		access: element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private') ? 'private' : undefined,
-		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
+		access:
+			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+				? 'private'
+				: undefined,
+		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		// @ts-ignore
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
@@ -40,7 +43,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				? element.children.map((child) => ({
 						name: child.name,
 						description: child.comment?.shortText,
-						type: typeof child.defaultValue === 'undefined' ? undefined : [[[child.defaultValue]]],
+						type: typeof child.defaultValue == 'undefined' ? undefined : [[[child.defaultValue]]],
 				  }))
 				: undefined,
 		};
@@ -54,8 +57,8 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 			const props: ClassMethodParamDoc[] = children.map((child) => ({
 				name: child.name,
 				description: child.comment?.shortText ?? (child.signatures ?? [])[0]?.comment?.shortText,
-				optional: child.flags.isOptional ?? (typeof child.defaultValue != 'undefined' || undefined),
-				default: child.defaultValue ?? child.comment?.tags?.find((t) => t.tag === 'default')?.text ?? undefined,
+				optional: child.flags.isOptional ?? typeof child.defaultValue != 'undefined',
+				default: child.defaultValue ?? child.comment?.tags?.find((t) => t.tag === 'default')?.text,
 				type: child.type
 					? // @ts-ignore
 					  parseType(child.type)
@@ -80,8 +83,8 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 			const params: ClassMethodParamDoc[] | undefined = sig.parameters?.map((param) => ({
 				name: param.name,
 				description: param.comment?.shortText,
-				optional: param.flags.isOptional ?? (typeof param.defaultValue != 'undefined' || undefined),
-				default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? undefined,
+				optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
+				default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text,
 				// @ts-ignore
 				type: param.type ? parseType(param.type) : undefined,
 			}));
@@ -90,7 +93,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				...baseReturn,
 				description: sig.comment?.shortText,
 				see: sig.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
-				deprecated: sig.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
+				deprecated: sig.comment?.tags?.some((t) => t.tag === 'deprecated'),
 
 				params,
 				returns: sig.type ? parseType(sig.type) : undefined,

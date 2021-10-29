@@ -59,8 +59,7 @@
 	},
 	"dependencies": {
 		"js-yaml": "^4.1.0",
-		"typedoc": "^0.22.7",
-		"typedoc-plugin-as-member-of": "^1.0.2"
+		"typedoc": "^0.22.7"
 	},
 	"engines": {
 		"node": ">=16.0.0",

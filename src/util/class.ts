@@ -38,7 +38,10 @@ export function parseClass(element: DeclarationReflection): ClassDoc {
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		extends: extended ? [parseTypeSimple(extended)] : undefined,
 		implements: implemented ? [parseTypeSimple(implemented)] : undefined,
-		access: element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private') ? 'private' : undefined,
+		access:
+			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+				? 'private'
+				: undefined,
 		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract') ?? undefined,
 		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
 		construct: construct ? parseClassMethod(construct) : undefined,
@@ -55,7 +58,7 @@ interface ClassPropDoc {
 	see?: string[] | undefined;
 	scope?: 'static' | undefined;
 	access?: 'private' | undefined;
-	readonly?: true | undefined;
+	readonly?: boolean | undefined;
 	nullable?: never | undefined; // it would already be in the type
 	abstract?: boolean | undefined;
 	deprecated?: boolean | undefined;
@@ -71,11 +74,14 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 		description: element.comment?.shortText,
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		scope: element.flags.isStatic ? 'static' : undefined,
-		access: element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private') ? 'private' : undefined,
-		readonly: (element.flags.isReadonly as boolean) || undefined,
-		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract') ?? undefined,
-		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
-		default: element.defaultValue ?? element.comment?.tags?.find((t) => t.tag === 'default')?.text ?? undefined,
+		access:
+			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+				? 'private'
+				: undefined,
+		readonly: element.flags.isReadonly,
+		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract'),
+		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
+		default: element.defaultValue ?? element.comment?.tags?.find((t) => t.tag === 'default')?.text,
 		// @ts-ignore
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
@@ -100,14 +106,17 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 			...res,
 			description: getter.comment?.shortText,
 			see: getter.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
-			access: getter.flags.isPrivate || getter.comment?.tags?.some((t) => t.tag === 'private') ? 'private' : undefined,
-			readonly: res.readonly ?? (!hasSetter || undefined),
-			abstract: getter.comment?.tags?.some((t) => t.tag === 'abstract') ?? undefined,
-			deprecated: getter.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
+			access:
+				getter.flags.isPrivate || getter.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+					? 'private'
+					: undefined,
+			readonly: res.readonly ?? !hasSetter,
+			abstract: getter.comment?.tags?.some((t) => t.tag === 'abstract'),
+			deprecated: getter.comment?.tags?.some((t) => t.tag === 'deprecated'),
 			default:
 				res.default ??
 				// @ts-expect-error
-				(getter.defaultValue || getter.comment?.tags?.find((t) => t.tag === 'default')?.text || undefined),
+				(getter.defaultValue || getter.comment?.tags?.find((t) => t.tag === 'default')?.text),
 			type: getter.type ? parseType(getter.type) : undefined,
 		};
 	}
@@ -156,10 +165,12 @@ export function parseClassMethod(element: DeclarationReflection): ClassMethodDoc
 		see: signature.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
 		scope: element.flags.isStatic ? 'static' : undefined,
 		access:
-			element.flags.isPrivate || signature.comment?.tags?.some((t) => t.tag === 'private') ? 'private' : undefined,
+			element.flags.isPrivate || signature.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+				? 'private'
+				: undefined,
 		examples: signature.comment?.tags?.filter((t) => t.tag === 'example').map((t) => t.text),
-		abstract: signature.comment?.tags?.some((t) => t.tag === 'abstract') ?? undefined,
-		deprecated: signature.comment?.tags?.some((t) => t.tag === 'deprecated') ?? undefined,
+		abstract: signature.comment?.tags?.some((t) => t.tag === 'abstract'),
+		deprecated: signature.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		emits: signature.comment?.tags?.filter((t) => t.tag === 'emits').map((t) => t.text),
 		params: signature.parameters ? signature.parameters.map(parseParam) : undefined,
 		returns: signature.type ? parseType(signature.type) : undefined,
@@ -174,8 +185,8 @@ export function parseParam(param: DeclarationReflection): ClassMethodParamDoc {
 	return {
 		name: param.name,
 		description: param.comment?.shortText?.trim() ?? param.comment?.text?.trim(),
-		optional: param.flags.isOptional ?? (typeof param.defaultValue != 'undefined' || undefined),
-		default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? undefined,
+		optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
+		default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text,
 		// @ts-ignore
 		type: param.type ? parseType(param.type) : undefined,
 	};
