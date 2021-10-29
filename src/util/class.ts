@@ -81,7 +81,10 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 		readonly: element.flags.isReadonly,
 		abstract: element.comment?.tags?.some((t) => t.tag === 'abstract'),
 		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
-		default: element.defaultValue ?? element.comment?.tags?.find((t) => t.tag === 'default')?.text,
+		default:
+			element.comment?.tags?.find((t) => t.tag === 'default')?.text ?? element.defaultValue === '...'
+				? undefined
+				: element.defaultValue,
 		// @ts-ignore
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
@@ -115,8 +118,9 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 			deprecated: getter.comment?.tags?.some((t) => t.tag === 'deprecated'),
 			default:
 				res.default ??
+				getter.comment?.tags?.find((t) => t.tag === 'default')?.text ??
 				// @ts-expect-error
-				(getter.defaultValue || getter.comment?.tags?.find((t) => t.tag === 'default')?.text),
+				getter.defaultValue,
 			type: getter.type ? parseType(getter.type) : undefined,
 		};
 	}
@@ -186,7 +190,10 @@ export function parseParam(param: DeclarationReflection): ClassMethodParamDoc {
 		name: param.name,
 		description: param.comment?.shortText?.trim() ?? param.comment?.text?.trim(),
 		optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
-		default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text,
+		default:
+			param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? param.defaultValue === '...'
+				? undefined
+				: param.defaultValue,
 		// @ts-ignore
 		type: param.type ? parseType(param.type) : undefined,
 	};

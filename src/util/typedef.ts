@@ -58,7 +58,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				name: child.name,
 				description: child.comment?.shortText?.trim() ?? (child.signatures ?? [])[0]?.comment?.shortText?.trim(),
 				optional: child.flags.isOptional ?? typeof child.defaultValue != 'undefined',
-				default: child.defaultValue ?? child.comment?.tags?.find((t) => t.tag === 'default')?.text,
+				default: child.comment?.tags?.find((t) => t.tag === 'default')?.text ?? child.defaultValue,
 				type: child.type
 					? // @ts-ignore
 					  parseType(child.type)
@@ -84,7 +84,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				name: param.name,
 				description: param.comment?.shortText?.trim(),
 				optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
-				default: param.defaultValue ?? param.comment?.tags?.find((t) => t.tag === 'default')?.text,
+				default: param.comment?.tags?.find((t) => t.tag === 'default')?.text ?? param.defaultValue,
 				// @ts-ignore
 				type: param.type ? parseType(param.type) : undefined,
 			}));
