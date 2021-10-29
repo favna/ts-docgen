@@ -93,8 +93,11 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				...baseReturn,
 				description: sig.comment?.shortText?.trim(),
 				see: sig.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text),
+				access:
+					sig.flags.isPrivate || sig.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
+						? 'private'
+						: undefined,
 				deprecated: sig.comment?.tags?.some((t) => t.tag === 'deprecated'),
-
 				params,
 				returns: sig.type ? parseType(sig.type) : undefined,
 				returnsDescription: sig.comment?.returns,
