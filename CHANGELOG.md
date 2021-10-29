@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [0.3.0](https://github.com/discordjs/ts-docgen/compare/v0.2.1...v0.3.0) (2021-10-29)
+
+
+### Features
+
+* flip around default values ([90824d0](https://github.com/discordjs/ts-docgen/commit/90824d07f49b6756c6cc3c6bb10c5473d8c6173b))
+
+
+
 ## [0.2.1](https://github.com/discordjs/ts-docgen/compare/v0.2.0...v0.2.1) (2021-10-29)
 
 
