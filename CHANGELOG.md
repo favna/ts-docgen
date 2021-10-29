@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.1](https://github.com/discordjs/ts-docgen/compare/v0.2.0...v0.2.1) (2021-10-29)
+
+
+### Bug Fixes
+
+* properly overwrite access for typedefs ([7056f5f](https://github.com/discordjs/ts-docgen/commit/7056f5f0c3c80c88fcce6e55d58d2ecd2c87e141))
+
+
+
 # [0.2.0](https://github.com/discordjs/ts-docgen/compare/v0.1.0...v0.2.0) (2021-10-29)
 
 
