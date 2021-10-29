@@ -58,8 +58,10 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				name: child.name,
 				description: child.comment?.shortText?.trim() ?? child.signatures?.[0]?.comment?.shortText?.trim(),
 				optional: child.flags.isOptional ?? typeof child.defaultValue != 'undefined',
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				default: child.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? child.defaultValue,
+				default:
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					child.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ??
+					(child.defaultValue === '...' ? undefined : child.defaultValue),
 				type: child.type
 					? // @ts-ignore
 					  parseType(child.type)
@@ -85,8 +87,10 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 				name: param.name,
 				description: param.comment?.shortText?.trim(),
 				optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
-				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				default: param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? param.defaultValue,
+				default:
+					// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+					param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ??
+					(param.defaultValue === '...' ? undefined : param.defaultValue),
 				// @ts-ignore
 				type: param.type ? parseType(param.type) : undefined,
 			}));

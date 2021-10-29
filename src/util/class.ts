@@ -83,9 +83,8 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 		deprecated: element.comment?.tags?.some((t) => t.tag === 'deprecated'),
 		default:
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			element.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? element.defaultValue === '...'
-				? undefined
-				: element.defaultValue,
+			element.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ??
+			(element.defaultValue === '...' ? undefined : element.defaultValue),
 		// @ts-ignore
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
@@ -194,9 +193,8 @@ export function parseParam(param: DeclarationReflection): ClassMethodParamDoc {
 		optional: param.flags.isOptional ?? typeof param.defaultValue != 'undefined',
 		default:
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ?? param.defaultValue === '...'
-				? undefined
-				: param.defaultValue,
+			param.comment?.tags?.find((t) => t.tag === 'default')?.text?.trim() ??
+			(param.defaultValue === '...' ? undefined : param.defaultValue),
 		// @ts-ignore
 		type: param.type ? parseType(param.type) : undefined,
 	};
