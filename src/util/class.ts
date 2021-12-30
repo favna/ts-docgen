@@ -10,6 +10,7 @@ export interface ClassDoc {
 	see?: string[] | undefined;
 	extends?: [string] | undefined;
 	implements?: [string] | undefined;
+	examples?: string[] | undefined;
 	access?: 'private' | undefined;
 	abstract?: boolean | undefined;
 	deprecated?: boolean | undefined;
@@ -23,6 +24,8 @@ export interface ClassDoc {
 export function parseClass(element: DeclarationReflection): ClassDoc {
 	const extended = element.extendedTypes?.[0];
 	const implemented = element.implementedTypes?.[0];
+	const examples = element.comment?.tags?.filter((t) => t.tag === 'example')?.map((t) => t.text.trim());
+
 	const construct = element.children?.find((c) => c.kindString === 'Constructor');
 	// Ignore setter-only accessors (the typings still exist, but the docs don't show them)
 	const props = element.children?.filter(
@@ -40,6 +43,7 @@ export function parseClass(element: DeclarationReflection): ClassDoc {
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		extends: extended ? [parseTypeSimple(extended)] : undefined,
 		implements: implemented ? [parseTypeSimple(implemented)] : undefined,
+		examples: examples ? examples : undefined,
 		access:
 			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
 				? 'private'
