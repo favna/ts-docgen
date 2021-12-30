@@ -5,6 +5,7 @@ import { DocType, parseType, typeUtil } from './types';
 export interface TypedefDoc {
 	name: string;
 	description?: string | undefined;
+	extendedDescription?: string | undefined;
 	see?: string[] | undefined;
 	access?: 'private' | undefined;
 	deprecated?: boolean | undefined;
@@ -20,6 +21,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 	const baseReturn: TypedefDoc = {
 		name: element.name,
 		description: element.comment?.shortText?.trim(),
+		extendedDescription: element.comment?.text?.trim(),
 		see: element.comment?.tags?.filter((t) => t.tag === 'see').map((t) => t.text.trim()),
 		access:
 			element.flags.isPrivate || element.comment?.tags?.some((t) => t.tag === 'private' || t.tag === 'internal')
