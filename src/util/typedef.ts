@@ -6,6 +6,7 @@ export interface TypedefDoc {
 	name: string;
 	description?: string | undefined;
 	extendedDescription?: string | undefined;
+	variant?: 'type' | 'interface' | 'enum' | undefined;
 	see?: string[] | undefined;
 	access?: 'private' | undefined;
 	deprecated?: boolean | undefined;
@@ -15,6 +16,19 @@ export interface TypedefDoc {
 	returns?: DocType | undefined;
 	returnsDescription?: string | undefined;
 	meta?: DocMeta | undefined;
+}
+
+function parseKindString(kindString: DeclarationReflection['kindString']): TypedefDoc['variant'] {
+	switch (kindString?.toLowerCase()) {
+		case 'type alias':
+			return 'type';
+		case 'interface':
+			return 'interface';
+		case 'enumeration':
+			return 'enum';
+		default:
+			return undefined;
+	}
 }
 
 export function parseTypedef(element: DeclarationReflection): TypedefDoc {
@@ -31,6 +45,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 		// @ts-ignore
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
+		variant: parseKindString(element.kindString),
 	};
 
 	let typeDef: DeclarationReflection | undefined;
