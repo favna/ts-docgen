@@ -6,7 +6,7 @@ export interface TypedefDoc {
 	name: string;
 	description?: string | undefined;
 	extendedDescription?: string | undefined;
-	variant?: 'type' | 'interface' | 'enum' | undefined;
+	variant: 'type' | 'interface' | 'enum';
 	see?: string[] | undefined;
 	access?: 'private' | undefined;
 	deprecated?: boolean | undefined;
@@ -20,14 +20,13 @@ export interface TypedefDoc {
 
 function parseKindString(kindString: DeclarationReflection['kindString']): TypedefDoc['variant'] {
 	switch (kindString?.toLowerCase()) {
-		case 'type alias':
-			return 'type';
 		case 'interface':
 			return 'interface';
 		case 'enumeration':
 			return 'enum';
+		case 'type alias':
 		default:
-			return undefined;
+			return 'type';
 	}
 }
 
