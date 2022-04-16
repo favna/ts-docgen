@@ -2,7 +2,7 @@ import path from 'path';
 import type { JSONOutput } from 'typedoc';
 import type { customSettings, ProjectData } from './index';
 import { ClassDoc, parseClass } from './util/class';
-import { parseNamespace } from './util/namespace';
+import { NamespaceDoc, parseNamespace } from './util/namespace';
 import { TypedefDoc, parseTypedef } from './util/typedef';
 import { version } from '../package.json';
 
@@ -27,7 +27,7 @@ interface CodeDoc {
 	// interfaces: unknown[]
 	// external: unknown[]
 	typedefs: TypedefDoc[];
-	namespaces: TypedefDoc[];
+	namespaces: NamespaceDoc[];
 }
 
 export function generateDocs(data: ProjectData): CodeDoc {
@@ -42,7 +42,7 @@ export function generateDocs(data: ProjectData): CodeDoc {
 		if (!value) continue;
 
 		if (type === 'class') classes.push(value);
-		// if (type == 'interface') interfaces.push(value)
+		// if (type === 'interface') interfaces.push(value);
 		if (type === 'typedef') typedefs.push(value);
 		if (type === 'namespace') namespaces.push(value);
 		// if (type == 'external') externals.push(value)
