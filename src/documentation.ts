@@ -31,11 +31,11 @@ interface CodeDoc {
 }
 
 export function generateDocs(data: ProjectData): CodeDoc {
-	const classes = [];
+	const classes: ClassDoc[] = [];
 	// interfaces = [], // not using this at the moment
 	// externals = [], // ???
-	const typedefs = [];
-	const namespaces = [];
+	const typedefs: TypedefDoc[] = [];
+	const namespaces: NamespaceDoc[] = [];
 
 	for (const c of data.children ?? []) {
 		const { type, value } = parseRootElement(c);
@@ -43,7 +43,7 @@ export function generateDocs(data: ProjectData): CodeDoc {
 
 		if (type === 'class') classes.push(value);
 		// if (type === 'interface') interfaces.push(value);
-		if (type === 'typedef') typedefs.push(value);
+		if (type === 'typedef') typedefs.push(value as TypedefDoc);
 		if (type === 'namespace') namespaces.push(value);
 		// if (type == 'external') externals.push(value)
 	}

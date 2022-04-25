@@ -1,24 +1,24 @@
 import path from 'node:path';
-
 import { DeclarationReflection, DocMeta, parseMeta } from '../documentation';
 import { DocType, parseType, parseTypeSimple } from './types';
 
 export interface ClassDoc {
-	name: string;
+	abstract?: boolean | undefined;
+	access?: 'private' | undefined;
+	construct?: ClassMethodDoc | undefined;
+	deprecated?: boolean | undefined;
 	description?: string | undefined;
+	events?: ClassEventDoc[] | undefined;
+	examples?: string[] | undefined;
 	extendedDescription?: string | undefined;
-	see?: string[] | undefined;
 	extends?: [string] | undefined;
 	implements?: [string] | undefined;
-	examples?: string[] | undefined;
-	access?: 'private' | undefined;
-	abstract?: boolean | undefined;
-	deprecated?: boolean | undefined;
-	construct?: ClassMethodDoc | undefined;
-	props?: ClassPropDoc[] | undefined;
-	methods?: ClassMethodDoc[] | undefined;
-	events?: ClassEventDoc[] | undefined;
+	isExternal?: boolean | undefined;
 	meta?: DocMeta | undefined;
+	methods?: ClassMethodDoc[] | undefined;
+	name: string;
+	props?: ClassPropDoc[] | undefined;
+	see?: string[] | undefined;
 }
 
 export function parseClass(element: DeclarationReflection): ClassDoc {
@@ -55,24 +55,25 @@ export function parseClass(element: DeclarationReflection): ClassDoc {
 		methods: methods && methods.length > 0 ? methods.map(parseClassMethod) : undefined,
 		events: events && events.length > 0 ? events.map(parseClassEvent) : undefined,
 		meta,
+		isExternal: element.flags.isExternal,
 	};
 }
 
 interface ClassPropDoc {
-	name: string;
+	abstract?: boolean | undefined;
+	access?: 'private' | undefined;
+	default?: string | boolean | number | undefined;
+	deprecated?: boolean | undefined;
 	description?: string | undefined;
 	extendedDescription?: string | undefined;
-	see?: string[] | undefined;
-	scope?: 'static' | undefined;
-	access?: 'private' | undefined;
-	readonly?: boolean | undefined;
-	nullable?: never | undefined; // it would already be in the type
-	abstract?: boolean | undefined;
-	deprecated?: boolean | undefined;
-	default?: string | boolean | number | undefined;
-	type?: DocType | undefined;
-	props?: never | undefined; // prefer using a type reference (like a dedicated instance) instead of documenting using @property tags
 	meta?: DocMeta | undefined;
+	name: string;
+	nullable?: never | undefined; // it would already be in the type
+	props?: never | undefined; // prefer using a type reference (like a dedicated instance) instead of documenting using @property tags
+	readonly?: boolean | undefined;
+	scope?: 'static' | undefined;
+	see?: string[] | undefined;
+	type?: DocType | undefined;
 }
 
 function parseClassProp(element: DeclarationReflection): ClassPropDoc {
@@ -139,20 +140,20 @@ function parseClassProp(element: DeclarationReflection): ClassPropDoc {
 }
 
 interface ClassMethodDoc {
-	name: string;
-	description?: string | undefined;
-	extendDescription?: string | undefined;
-	see?: string[] | undefined;
-	scope?: 'static' | undefined;
-	access?: 'private' | undefined;
-	inherits?: never | undefined; // let's just don't
-	inherited?: never | undefined; // let's just don't
-	implements?: never | undefined; // let's just don't
-	examples?: string[] | undefined;
 	abstract?: boolean | undefined;
+	access?: 'private' | undefined;
+	async?: never | undefined; // it would already be in the type
 	deprecated?: boolean | undefined;
+	description?: string | undefined;
 	emits?: string[] | undefined;
-	throws?: never | undefined; // let's just don't
+	examples?: string[] | undefined;
+	extendDescription?: string | undefined;
+	generator?: never | undefined; // not used by djs
+	implements?: never | undefined; // let's just don't
+	inherited?: never | undefined; // let's just don't
+	inherits?: never | undefined; // let's just don't
+	meta?: DocMeta | undefined;
+	name: string;
 	params?:
 		| {
 				name: string;
@@ -164,11 +165,11 @@ interface ClassMethodDoc {
 				type?: DocType | undefined;
 		  }[]
 		| undefined;
-	async?: never | undefined; // it would already be in the type
-	generator?: never | undefined; // not used by djs
 	returns?: DocType | undefined;
 	returnsDescription?: string | undefined;
-	meta?: DocMeta | undefined;
+	scope?: 'static' | undefined;
+	see?: string[] | undefined;
+	throws?: never | undefined; // let's just don't
 }
 
 export function parseClassMethod(element: DeclarationReflection): ClassMethodDoc {
@@ -212,11 +213,11 @@ export function parseParam(param: DeclarationReflection): ClassMethodParamDoc {
 }
 
 interface ClassEventDoc {
-	name: string;
+	deprecated?: boolean | undefined;
 	description?: string | undefined;
 	extendedDescription?: string | undefined;
-	see?: string[] | undefined;
-	deprecated?: boolean | undefined;
+	meta?: DocMeta | undefined;
+	name: string;
 	params?:
 		| {
 				name: string;
@@ -228,7 +229,7 @@ interface ClassEventDoc {
 				type?: DocType | undefined;
 		  }[]
 		| undefined;
-	meta?: DocMeta | undefined;
+	see?: string[] | undefined;
 }
 
 function parseClassEvent(element: DeclarationReflection): ClassEventDoc {

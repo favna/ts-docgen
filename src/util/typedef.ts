@@ -3,19 +3,20 @@ import type { ClassMethodParamDoc } from './class';
 import { DocType, parseType, typeUtil } from './types';
 
 export interface TypedefDoc {
-	name: string;
-	description?: string | undefined;
-	extendedDescription?: string | undefined;
-	variant: 'type' | 'interface' | 'enum';
-	see?: string[] | undefined;
 	access?: 'private' | undefined;
 	deprecated?: boolean | undefined;
-	type?: DocType | undefined;
-	props?: ClassMethodParamDoc[] | undefined;
+	description?: string | undefined;
+	extendedDescription?: string | undefined;
+	isExternal?: boolean | undefined;
+	meta?: DocMeta | undefined;
+	name: string;
 	params?: ClassMethodParamDoc[] | undefined;
+	props?: ClassMethodParamDoc[] | undefined;
 	returns?: DocType | undefined;
 	returnsDescription?: string | undefined;
-	meta?: DocMeta | undefined;
+	see?: string[] | undefined;
+	type?: DocType | undefined;
+	variant: 'type' | 'interface' | 'enum';
 }
 
 function parseKindString(kindString: DeclarationReflection['kindString']): TypedefDoc['variant'] {
@@ -45,6 +46,7 @@ export function parseTypedef(element: DeclarationReflection): TypedefDoc {
 		type: element.type ? parseType(element.type) : undefined,
 		meta: parseMeta(element),
 		variant: parseKindString(element.kindString),
+		isExternal: element.flags.isExternal,
 	};
 
 	let typeDef: DeclarationReflection | undefined;

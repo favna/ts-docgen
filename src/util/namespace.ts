@@ -2,15 +2,16 @@ import { DocMeta, parseMeta, type DeclarationReflection } from '../documentation
 import { parseTypedef, TypedefDoc } from './typedef';
 
 export interface NamespaceDoc {
-	name: string;
-	description?: string | undefined;
-	extendedDescription?: string | undefined;
-	see?: string[] | undefined;
 	deprecated?: boolean | undefined;
-	typeAliases?: TypedefDoc[] | undefined;
-	interfaces?: TypedefDoc[] | undefined;
+	description?: string | undefined;
 	enumerations?: TypedefDoc[] | undefined;
+	extendedDescription?: string | undefined;
+	interfaces?: TypedefDoc[] | undefined;
+	isExternal?: boolean | undefined;
 	meta?: DocMeta | undefined;
+	name: string;
+	see?: string[] | undefined;
+	typeAliases?: TypedefDoc[] | undefined;
 }
 
 export function parseNamespace(element: DeclarationReflection): NamespaceDoc {
@@ -28,5 +29,6 @@ export function parseNamespace(element: DeclarationReflection): NamespaceDoc {
 		interfaces: interfaces && interfaces.length > 0 ? interfaces.map(parseTypedef) : undefined,
 		enumerations: enumerations && enumerations.length > 0 ? enumerations.map(parseTypedef) : undefined,
 		meta: parseMeta(element),
+		isExternal: element.flags.isExternal,
 	};
 }
